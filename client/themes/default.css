@@ -33,3 +33,32 @@
 		border-radius: 0;
 	}
 }
+
+/* custom Utherverse tweaks */
+
+.logo-container {
+	margin-top: 1rem;
+}
+
+/* hide 'Real Name' field from /connect */
+.connect-row:nth-child(3) {
+	display: none;
+}
+
+/* hide 'Channels' field from /connect */
+.connect-row:nth-child(4) {
+	display: none;
+}
+
+/* hide hostmasks */
+#chat .hostmask {
+	display: none;
+}
+
+/* hide real name */
+#chat .realname {
+	display: none;
+}
+
+
+

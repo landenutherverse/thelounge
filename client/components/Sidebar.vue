@@ -8,7 +8,7 @@
 					alt="The Lounge"
 				/>
 				<img
-					:src="`img/logo-${isPublic() ? 'horizontal-' : ''}transparent-bg-inverted.svg`"
+					:src="`img/logo-${isPublic() ? 'horizontal-' : ''}transparent-bg-inverted.png`"
 					class="logo-inverted"
 					alt="The Lounge"
 				/>

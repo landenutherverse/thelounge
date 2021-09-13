@@ -146,8 +146,9 @@
 			</div>
 			<template v-if="!config.useHexIp">
 				<div class="connect-row">
-					<label for="connect:username">Username</label>
+					<label for="connect:username">Member ID (optional)</label>
 					<input
+						type="number"
 						id="connect:username"
 						ref="usernameInput"
 						v-model="defaults.username"
