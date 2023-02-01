@@ -16,21 +16,20 @@
 		<a href="https://thelounge.chat/docs">Docs</a>
 		•
 		<a href="https://demo.thelounge.chat/">Demo</a>
+    •
+		<a href="https://github.com/thelounge/thelounge-docker">Docker</a>
 	</strong>
 </p>
 <p align="center">
 	<a href="https://demo.thelounge.chat/"><img
-		alt="#thelounge IRC channel on freenode"
-		src="https://img.shields.io/badge/freenode-%23thelounge-415364.svg?colorA=ff9e18"></a>
+		alt="#thelounge IRC channel on Libera.Chat"
+		src="https://img.shields.io/badge/Libera.Chat-%23thelounge-415364.svg?colorA=ff9e18"></a>
 	<a href="https://yarn.pm/thelounge"><img
 		alt="npm version"
 		src="https://img.shields.io/npm/v/thelounge.svg?colorA=333a41&maxAge=3600"></a>
 	<a href="https://github.com/thelounge/thelounge/actions"><img
 		alt="Build Status"
 		src="https://github.com/thelounge/thelounge/workflows/Build/badge.svg"></a>
-	<a href="https://npm-stat.com/charts.html?package=thelounge&from=2016-02-12"><img
-		alt="Total downloads on npm"
-		src="https://img.shields.io/npm/dy/thelounge.svg?colorA=333a41&colorB=007dc7&maxAge=3600&label=Downloads"></a>
 </p>
 
 <p align="center">
@@ -52,7 +51,7 @@ The Lounge is the official and community-managed fork of [Shout](https://github.
 ## Installation and usage
 
 The Lounge requires latest [Node.js](https://nodejs.org/) LTS version or more recent.
-[Yarn package manager](https://yarnpkg.com/) is also recommended.  
+The [Yarn package manager](https://yarnpkg.com/) is also recommended.
 If you want to install with npm, `--unsafe-perm` is required for a correct install.
 
 ### Running stable releases
@@ -84,6 +83,10 @@ fork.
 Before submitting any change, make sure to:
 
 - Read the [Contributing instructions](https://github.com/thelounge/thelounge/blob/master/.github/CONTRIBUTING.md#contributing)
-- Run `yarn test` to execute linters and test suite
-- Run `yarn build` if you change or add anything in `client/js` or `client/views`
+- Run `yarn test` to execute linters and the test suite
+  - Run `yarn format:prettier` if linting fails
+- Run `yarn build:client` if you change or add anything in `client/js` or `client/components`
+  - The built files will be output to `public/` by webpack
+- Run `yarn build:server` if you change anything in `server/`
+  - The built files will be output to `dist/` by tsc
 - `yarn dev` can be used to start The Lounge with hot module reloading

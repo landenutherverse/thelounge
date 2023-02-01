@@ -10,46 +10,47 @@
 				Recent mentions
 				<button
 					v-if="resolvedMessages.length"
-					class="btn hide-all-mentions"
-					@click="hideAllMentions()"
+					class="btn dismiss-all-mentions"
+					@click="dismissAllMentions()"
 				>
-					Hide all
+					Dismiss all
 				</button>
 			</div>
 			<template v-if="resolvedMessages.length === 0">
 				<p v-if="isLoading">Loading…</p>
 				<p v-else>You have no recent mentions.</p>
 			</template>
-			<template v-for="message in resolvedMessages" v-else>
-				<div :key="message.msgId" :class="['msg', message.type]">
+			<template v-for="message in resolvedMessages" v-else :key="message.msgId">
+				<div :class="['msg', message.type]">
 					<div class="mentions-info">
 						<div>
 							<span class="from">
-								<Username :user="message.from" />
+								<Username :user="(message.from as any)" />
 								<template v-if="message.channel">
 									in {{ message.channel.channel.name }} on
 									{{ message.channel.network.name }}
 								</template>
-								<template v-else>
-									in unknown channel
-								</template>
-							</span>
+								<template v-else> in unknown channel </template> </span
+							>{{ ` ` }}
 							<span :title="message.localetime" class="time">
-								{{ messageTime(message.time) }}
+								{{ messageTime(message.time.toString()) }}
 							</span>
 						</div>
 						<div>
-							<span class="close-tooltip tooltipped tooltipped-w" aria-label="Close">
+							<span
+								class="close-tooltip tooltipped tooltipped-w"
+								aria-label="Dismiss this mention"
+							>
 								<button
-									class="msg-hide"
-									aria-label="Hide this mention"
-									@click="hideMention(message)"
+									class="msg-dismiss"
+									aria-label="Dismiss this mention"
+									@click="dismissMention(message)"
 								></button>
 							</span>
 						</div>
 					</div>
 					<div class="content" dir="auto">
-						<ParsedMessage :network="null" :message="message" />
+						<ParsedMessage :message="(message as any)" />
 					</div>
 				</div>
 			</template>
@@ -104,7 +105,7 @@
 	word-break: break-word; /* Webkit-specific */
 }
 
-.mentions-popup .msg-hide::before {
+.mentions-popup .msg-dismiss::before {
 	font-size: 20px;
 	font-weight: normal;
 	display: inline-block;
@@ -113,11 +114,11 @@
 	content: "×";
 }
 
-.mentions-popup .msg-hide:hover {
+.mentions-popup .msg-dismiss:hover {
 	color: var(--link-color);
 }
 
-.mentions-popup .hide-all-mentions {
+.mentions-popup .dismiss-all-mentions {
 	margin: 0;
 	padding: 4px 6px;
 }
@@ -143,7 +144,7 @@
 }
 </style>
 
-<script>
+<script lang="ts">
 import Username from "./Username.vue";
 import ParsedMessage from "./ParsedMessage.vue";
 import socket from "../js/socket";
@@ -151,73 +152,96 @@ import eventbus from "../js/eventbus";
 import localetime from "../js/helpers/localetime";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import {computed, watch, defineComponent, ref, onMounted, onUnmounted} from "vue";
+import {useStore} from "../js/store";
+import {ClientMention} from "../js/types";
 
 dayjs.extend(relativeTime);
 
-export default {
+export default defineComponent({
 	name: "Mentions",
 	components: {
 		Username,
 		ParsedMessage,
 	},
-	data() {
-		return {
-			isOpen: false,
-			isLoading: false,
-		};
-	},
-	computed: {
-		resolvedMessages() {
-			const messages = this.$store.state.mentions.slice().reverse();
+	setup() {
+		const store = useStore();
+		const isOpen = ref(false);
+		const isLoading = ref(false);
+		const resolvedMessages = computed(() => {
+			const messages = store.state.mentions.slice().reverse();
 
 			for (const message of messages) {
 				message.localetime = localetime(message.time);
-				message.channel = this.$store.getters.findChannel(message.chanId);
+				message.channel = store.getters.findChannel(message.chanId);
 			}
 
-			return messages;
-		},
-	},
-	watch: {
-		"$store.state.mentions"() {
-			this.isLoading = false;
-		},
-	},
-	mounted() {
-		eventbus.on("mentions:toggle", this.openPopup);
-	},
-	destroyed() {
-		eventbus.off("mentions:toggle", this.openPopup);
-	},
-	methods: {
-		messageTime(time) {
+			return messages.filter((message) => !message.channel?.channel.muted);
+		});
+
+		watch(
+			() => store.state.mentions,
+			() => {
+				isLoading.value = false;
+			}
+		);
+
+		const messageTime = (time: string) => {
 			return dayjs(time).fromNow();
-		},
-		hideMention(message) {
-			this.$store.state.mentions.splice(
-				this.$store.state.mentions.findIndex((m) => m.msgId === message.msgId),
+		};
+
+		const dismissMention = (message: ClientMention) => {
+			store.state.mentions.splice(
+				store.state.mentions.findIndex((m) => m.msgId === message.msgId),
 				1
 			);
 
-			socket.emit("mentions:hide", message.msgId);
-		},
-		hideAllMentions() {
-			this.$store.state.mentions = [];
-			socket.emit("mentions:hide_all");
-		},
-		containerClick(event) {
-			if (event.currentTarget === event.target) {
-				this.isOpen = false;
-			}
-		},
-		openPopup() {
-			this.isOpen = !this.isOpen;
+			socket.emit("mentions:dismiss", message.msgId);
+		};
 
-			if (this.isOpen) {
-				this.isLoading = true;
+		const dismissAllMentions = () => {
+			store.state.mentions = [];
+			socket.emit("mentions:dismiss_all");
+		};
+
+		const containerClick = (event: Event) => {
+			if (event.currentTarget === event.target) {
+				isOpen.value = false;
+			}
+		};
+
+		const togglePopup = () => {
+			isOpen.value = !isOpen.value;
+
+			if (isOpen.value) {
+				isLoading.value = true;
 				socket.emit("mentions:get");
 			}
-		},
+		};
+
+		const closePopup = () => {
+			isOpen.value = false;
+		};
+
+		onMounted(() => {
+			eventbus.on("mentions:toggle", togglePopup);
+			eventbus.on("escapekey", closePopup);
+		});
+
+		onUnmounted(() => {
+			eventbus.off("mentions:toggle", togglePopup);
+			eventbus.off("escapekey", closePopup);
+		});
+
+		return {
+			isOpen,
+			isLoading,
+			resolvedMessages,
+			messageTime,
+			dismissMention,
+			dismissAllMentions,
+			containerClick,
+		};
 	},
-};
+});
 </script>

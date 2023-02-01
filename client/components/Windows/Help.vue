@@ -9,7 +9,7 @@
 			<h2 class="help-version-title">
 				<span>About The Lounge</span>
 				<small>
-					v{{ $store.state.serverConfiguration.version }} (<router-link
+					v{{ store.state.serverConfiguration?.version }} (<router-link
 						id="view-changelog"
 						to="/changelog"
 						>release notes</router-link
@@ -20,13 +20,13 @@
 			<div class="about">
 				<VersionChecker />
 
-				<template v-if="$store.state.serverConfiguration.gitCommit">
+				<template v-if="store.state.serverConfiguration?.gitCommit">
 					<p>
 						The Lounge is running from source (<a
-							:href="`https://github.com/thelounge/thelounge/tree/${$store.state.serverConfiguration.gitCommit}`"
+							:href="`https://github.com/thelounge/thelounge/tree/${store.state.serverConfiguration?.gitCommit}`"
 							target="_blank"
 							rel="noopener"
-							>commit <code>{{ $store.state.serverConfiguration.gitCommit }}</code></a
+							>commit <code>{{ store.state.serverConfiguration?.gitCommit }}</code></a
 						>).
 					</p>
 
@@ -34,11 +34,11 @@
 						<li>
 							Compare
 							<a
-								:href="`https://github.com/thelounge/thelounge/compare/${$store.state.serverConfiguration.gitCommit}...master`"
+								:href="`https://github.com/thelounge/thelounge/compare/${store.state.serverConfiguration?.gitCommit}...master`"
 								target="_blank"
 								rel="noopener"
 								>between
-								<code>{{ $store.state.serverConfiguration.gitCommit }}</code> and
+								<code>{{ store.state.serverConfiguration?.gitCommit }}</code> and
 								<code>master</code></a
 							>
 							to see what you are missing
@@ -46,12 +46,12 @@
 						<li>
 							Compare
 							<a
-								:href="`https://github.com/thelounge/thelounge/compare/${$store.state.serverConfiguration.version}...${$store.state.serverConfiguration.gitCommit}`"
+								:href="`https://github.com/thelounge/thelounge/compare/${store.state.serverConfiguration?.version}...${store.state.serverConfiguration?.gitCommit}`"
 								target="_blank"
 								rel="noopener"
 								>between
-								<code>{{ $store.state.serverConfiguration.version }}</code> and
-								<code>{{ $store.state.serverConfiguration.gitCommit }}</code></a
+								<code>{{ store.state.serverConfiguration?.version }}</code> and
+								<code>{{ store.state.serverConfiguration?.gitCommit }}</code></a
 							>
 							to see your local changes
 						</li>
@@ -85,6 +85,36 @@
 						>Report an issue…</a
 					>
 				</p>
+			</div>
+
+			<h2 v-if="isTouch">Gestures</h2>
+
+			<div v-if="isTouch" class="help-item">
+				<div class="subject gesture">Single-Finger Swipe Left</div>
+				<div class="description">
+					<p>Hide sidebar.</p>
+				</div>
+			</div>
+
+			<div v-if="isTouch" class="help-item">
+				<div class="subject gesture">Single-Finger Swipe Right</div>
+				<div class="description">
+					<p>Show sidebar.</p>
+				</div>
+			</div>
+
+			<div v-if="isTouch" class="help-item">
+				<div class="subject gesture">Two-Finger Swipe Left</div>
+				<div class="description">
+					<p>Switch to the next window in the channel list.</p>
+				</div>
+			</div>
+
+			<div v-if="isTouch" class="help-item">
+				<div class="subject gesture">Two-Finger Swipe Right</div>
+				<div class="description">
+					<p>Switch to the previous window in the channel list.</p>
+				</div>
 			</div>
 
 			<h2>Keyboard Shortcuts</h2>
@@ -186,6 +216,26 @@
 				</div>
 				<div class="description">
 					<p>Toggle jump to channel switcher.</p>
+				</div>
+			</div>
+
+			<div class="help-item">
+				<div class="subject">
+					<span v-if="!isApple"><kbd>Alt</kbd> <kbd>M</kbd></span>
+					<span v-else><kbd>⌥</kbd> <kbd>M</kbd></span>
+				</div>
+				<div class="description">
+					<p>Toggle recent mentions popup.</p>
+				</div>
+			</div>
+
+			<div class="help-item">
+				<div class="subject">
+					<span v-if="!isApple"><kbd>Alt</kbd> <kbd>/</kbd></span>
+					<span v-else><kbd>⌥</kbd> <kbd>/</kbd></span>
+				</div>
+				<div class="description">
+					<p>Switch to the help menu.</p>
 				</div>
 			</div>
 
@@ -318,9 +368,7 @@
 				<kbd>↓</kbd> keys to highlight an item, and insert it by pressing <kbd>Tab</kbd> or
 				<kbd>Enter</kbd> (or by clicking the desired item).
 			</p>
-			<p>
-				Autocompletion can be disabled in settings.
-			</p>
+			<p>Autocompletion can be disabled in settings.</p>
 
 			<div class="help-item">
 				<div class="subject">
@@ -474,9 +522,7 @@
 					<code>/disconnect [message]</code>
 				</div>
 				<div class="description">
-					<p>
-						Disconnect from the current network with an optionally-provided message.
-					</p>
+					<p>Disconnect from the current network with an optionally-provided message.</p>
 				</div>
 			</div>
 
@@ -528,19 +574,34 @@
 
 			<div class="help-item">
 				<div class="subject">
-					<code>/join channel</code>
+					<code>/join channel [password]</code>
 				</div>
 				<div class="description">
-					<p>Join a channel.</p>
+					<p>
+						Join a channel. Password is only needed in protected channels and can
+						usually be omitted.
+					</p>
 				</div>
 			</div>
 
 			<div class="help-item">
 				<div class="subject">
-					<code>/kick nick</code>
+					<code>/kick nick [reason]</code>
 				</div>
 				<div class="description">
 					<p>Kick a user from the current channel.</p>
+				</div>
+			</div>
+
+			<div class="help-item">
+				<div class="subject">
+					<code>/kickban nick [reason]</code>
+				</div>
+				<div class="description">
+					<p>
+						Kick and ban (<code>+b</code>) a user from the current channel. Unlike
+						<code>/ban</code>, only nicknames (and not host masks) can be used.
+					</p>
 				</div>
 			</div>
 
@@ -589,6 +650,20 @@
 
 			<div class="help-item">
 				<div class="subject">
+					<code>/mute [...channel]</code>
+				</div>
+				<div class="description">
+					<p>
+						Prevent messages from generating any feedback for a channel. This turns off
+						the highlight indicator, hides mentions and inhibits push notifications.
+						Muting a network lobby mutes the entire network. Not specifying any channel
+						target mutes the current channel. Revert with <code>/unmute</code>.
+					</p>
+				</div>
+			</div>
+
+			<div class="help-item">
+				<div class="subject">
 					<code>/nick newnick</code>
 				</div>
 				<div class="description">
@@ -610,9 +685,7 @@
 					<code>/op nick [...nick]</code>
 				</div>
 				<div class="description">
-					<p>
-						Give op (<code>+o</code>) to one or several users in the current channel.
-					</p>
+					<p>Give op (<code>+o</code>) to one or several users in the current channel.</p>
 				</div>
 			</div>
 
@@ -656,9 +729,7 @@
 					<code>/quit [message]</code>
 				</div>
 				<div class="description">
-					<p>
-						Disconnect from the current network with an optional message.
-					</p>
+					<p>Disconnect from the current network with an optional message.</p>
 				</div>
 			</div>
 
@@ -678,6 +749,15 @@
 				</div>
 				<div class="description">
 					<p>Slap someone in the current channel with a trout!</p>
+				</div>
+			</div>
+
+			<div v-if="store.state.settings.searchEnabled" class="help-item">
+				<div class="subject">
+					<code>/search query</code>
+				</div>
+				<div class="description">
+					<p>Search for messages in the current channel / user</p>
 				</div>
 			</div>
 
@@ -719,6 +799,18 @@
 
 			<div class="help-item">
 				<div class="subject">
+					<code>/unmute [...channel]</code>
+				</div>
+				<div class="description">
+					<p>
+						Un-mutes the given channel(s) or the current channel if no channel is
+						provided. See <code>/mute</code> for more information.
+					</p>
+				</div>
+			</div>
+
+			<div class="help-item">
+				<div class="subject">
 					<code>/voice nick [...nick]</code>
 				</div>
 				<div class="description">
@@ -733,29 +825,35 @@
 					<code>/whois nick</code>
 				</div>
 				<div class="description">
-					<p>
-						Retrieve information about the given user on the current network.
-					</p>
+					<p>Retrieve information about the given user on the current network.</p>
 				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent, ref} from "vue";
+import {useStore} from "../../js/store";
 import SidebarToggle from "../SidebarToggle.vue";
 import VersionChecker from "../VersionChecker.vue";
 
-export default {
+export default defineComponent({
 	name: "Help",
 	components: {
 		SidebarToggle,
 		VersionChecker,
 	},
-	data() {
+	setup() {
+		const store = useStore();
+		const isApple = navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) || false;
+		const isTouch = navigator.maxTouchPoints > 0;
+
 		return {
-			isApple: navigator.platform.match(/(Mac|iPhone|iPod|iPad)/i) || false,
+			isApple,
+			isTouch,
+			store,
 		};
 	},
-};
+});
 </script>

@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 	<head>
 
 	<meta charset="utf-8">
@@ -48,12 +48,12 @@
 
 	</head>
 	<body class="<%- public ? " public" : "" %>" data-transports="<%- JSON.stringify(transports) %>">
-		<div id="viewport"></div>
+		<div id="app"></div>
 		<div id="loading">
 			<div class="window">
 				<div id="loading-status-container">
-					<img src="img/logo-vertical-transparent-bg.svg" class="logo" alt="The Lounge" width="256" height="170">
-					<img src="img/logo-vertical-transparent-bg-inverted.svg" class="logo-inverted" alt="The Lounge" width="256" height="170">
+					<img src="img/logo-vertical-transparent-bg.svg" class="logo" alt="" width="256" height="170">
+					<img src="img/logo-vertical-transparent-bg-inverted.svg" class="logo-inverted" alt="" width="256" height="170">
 					<p id="loading-page-message">The Lounge requires a modern browser with JavaScript enabled.</p>
 				</div>
 				<div id="loading-reload-container">

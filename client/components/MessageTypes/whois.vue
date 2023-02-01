@@ -12,7 +12,12 @@
 			</template>
 
 			<dt>Host mask:</dt>
-			<dd class="hostmask">{{ message.whois.ident }}@{{ message.whois.hostname }}</dd>
+			<dd class="hostmask">
+				<ParsedMessage
+					:network="network"
+					:text="message.whois.ident + '@' + message.whois.hostname"
+				/>
+			</dd>
 
 			<template v-if="message.whois.actual_hostname">
 				<dt>Actual host:</dt>
@@ -50,9 +55,9 @@
 			</template>
 
 			<template v-if="message.whois.special">
-				<template v-for="special in message.whois.special">
-					<dt :key="special">Special:</dt>
-					<dd :key="special">{{ special }}</dd>
+				<template v-for="special in message.whois.special" :key="special">
+					<dt>Special:</dt>
+					<dd>{{ special }}</dd>
 				</template>
 			</template>
 
@@ -106,25 +111,33 @@
 	</span>
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent, PropType} from "vue";
 import localetime from "../../js/helpers/localetime";
+import {ClientNetwork, ClientMessage} from "../../js/types";
 import ParsedMessage from "../ParsedMessage.vue";
 import Username from "../Username.vue";
 
-export default {
+export default defineComponent({
 	name: "MessageTypeWhois",
 	components: {
 		ParsedMessage,
 		Username,
 	},
 	props: {
-		network: Object,
-		message: Object,
-	},
-	methods: {
-		localetime(date) {
-			return localetime(date);
+		network: {
+			type: Object as PropType<ClientNetwork>,
+			required: true,
+		},
+		message: {
+			type: Object as PropType<ClientMessage>,
+			required: true,
 		},
 	},
-};
+	setup() {
+		return {
+			localetime: (date: Date) => localetime(date),
+		};
+	},
+});
 </script>

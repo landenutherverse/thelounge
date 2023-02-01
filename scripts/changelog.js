@@ -53,7 +53,7 @@ const got = require("got");
 const dayjs = require("dayjs");
 const semver = require("semver");
 const util = require("util");
-const log = require("../src/log");
+const log = require("../server/log");
 const packageJson = require("../package.json");
 let token = process.env.CHANGELOG_TOKEN;
 
@@ -655,9 +655,10 @@ function isFeature({labels}) {
 //   chore(deps): update babel monorepo to v7.1.0
 function extractPackages({title, body, url}) {
 	// Extract updated packages from renovate-bot's pull request body
-	let list = /^This PR contains the following updates:\n\n(?:[\s\S]+?)---\|$\n([\s\S]+?)\n\n---/m.exec(
-		body
-	);
+	let list =
+		/^This PR contains the following updates:\n\n(?:[\s\S]+?)---\|$\n([\s\S]+?)\n\n---/m.exec(
+			body
+		);
 
 	if (list) {
 		const packages = [];
@@ -687,9 +688,8 @@ function extractPackages({title, body, url}) {
 	}
 
 	// Fallback to extracting package from title
-	const extracted = /(?:U|u)pdate(?: dependency)? ([\w-,` ./@]+?) (?:packages |monorepo )?to /.exec(
-		title
-	);
+	const extracted =
+		/(?:U|u)pdate(?: dependency)? ([\w-,` ./@]+?) (?:packages |monorepo )?to /.exec(title);
 
 	if (!extracted) {
 		log.warn(`Failed to extract package from: ${title}  ${colors.gray(url)}`);

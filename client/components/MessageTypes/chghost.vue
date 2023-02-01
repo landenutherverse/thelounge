@@ -6,22 +6,33 @@
 			>username to <b>{{ message.new_ident }}</b></span
 		>
 		<span v-if="message.new_host"
-			>hostname to <i class="hostmask">{{ message.new_host }}</i></span
-		>
+			>hostname to
+			<i class="hostmask"><ParsedMessage :network="network" :text="message.new_host" /></i
+		></span>
 	</span>
 </template>
 
-<script>
+<script lang="ts">
+import {defineComponent, PropType} from "vue";
+import {ClientNetwork, ClientMessage} from "../../js/types";
+import ParsedMessage from "../ParsedMessage.vue";
 import Username from "../Username.vue";
 
-export default {
+export default defineComponent({
 	name: "MessageTypeChangeHost",
 	components: {
+		ParsedMessage,
 		Username,
 	},
 	props: {
-		network: Object,
-		message: Object,
+		network: {
+			type: Object as PropType<ClientNetwork>,
+			required: true,
+		},
+		message: {
+			type: Object as PropType<ClientMessage>,
+			required: true,
+		},
 	},
-};
+});
 </script>
